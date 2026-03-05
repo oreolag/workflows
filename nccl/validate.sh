@@ -18,6 +18,9 @@ command_description="$("$ODEV_PATH/src/description_read.sh" "$ODEV_PATH" "$KEY")
 # read command flags
 mapfile -t flags < <("$ODEV_PATH/src/cmd_flags_read.sh" "$ODEV_PATH" "$KEY")
 
+# read mandatory flags
+mandatory_flags="$("$ODEV_PATH/src/mandatory_flags_read.sh" "$ODEV_PATH" "$KEY")"
+
 # (maybe) print help
 print_range="1"
 print_default="0"
@@ -28,15 +31,25 @@ print_both="0"
   "${flags[@]}" -- "$@" && exit 0 || true
 
 # parse and check flag values
-parsed_flags="$("$ODEV_PATH/src/cmd_parse.sh" --params "${flags[@]}" -- "$@")" || exit 1
+#parsed_flags="$("$ODEV_PATH/src/cmd_parse.sh" --params "${flags[@]}" -- "$@")" || exit 1
+#if [[ -n "$parsed_flags" ]]; then
+#  declare -A V
+#  while IFS='=' read -r k v; do
+#    V["$k"]="$v"
+#  done <<< "$parsed_flags"
+#fi
+parsed_flags="$("$ODEV_PATH/src/cmd_prompt.sh" --required "$mandatory_flags" --params "${flags[@]}" -- "$parsed_flags")" || exit 1
+
+# run interactive prompt
+parsed_flags="$("$ODEV_PATH/src/cmd_prompt.sh" --required "$mandatory_flags" --params "${flags[@]}" -- "$parsed_flags")" || exit 1
+
+# read flags
 if [[ -n "$parsed_flags" ]]; then
   declare -A V
   while IFS='=' read -r k v; do
     V["$k"]="$v"
   done <<< "$parsed_flags"
 fi
-
-# read flags
 ngpus=${V[ngpus]}
 nthreads=${V[nthreads]}
 minbytes=${V[minbytes]}
