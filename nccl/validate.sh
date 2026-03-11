@@ -11,14 +11,34 @@ CLI_NAME="$(basename "$(dirname "$(dirname "$SCRIPT_DIR")")")"
 COMMAND="$(basename "$SCRIPT_DIR")"
 ODEV_PATH="${ODEV_PATH:-"$(dirname "$SCRIPT_DIR")"}"
 
-# read command description
+# get hostname
+url="${HOSTNAME}"
+hostname="${url%%.*}"
+
+# format
+bold=$(tput bold)
+italic=$(tput sitm 2>/dev/null || true)
+normal=$(tput sgr0)
+
+# constants
+CMDB_PATH="$(eval echo "$("$ODEV_PATH/src/read_yml.py" --db "$ODEV_PATH/constants.yml" paths cmdb)")"
+COLOR_OREOL=$($ODEV_PATH/src/color_get.sh $ODEV_PATH COLOR_OREOL)
+LOCAL_TEST="1"
+PROJECTS_PATH="$(eval echo "$("$ODEV_PATH/src/read_yml.py" --db "$ODEV_PATH/constants.yml" paths projects)")"
+VALIDATION_PROJECT_PATH="$PROJECTS_PATH/validate.$COMMAND.$hostname"
+
+# check on users
+# ...
+
+# check on tools
+# ...
+
+# set KEY
 KEY="$(printf '%s_%s' "$COMMAND" "$SUBCOMMAND" | tr '[:lower:]' '[:upper:]')"
+
+# read command description, command flags, and mandatory flags
 command_description="$("$ODEV_PATH/src/cmd_description_read.sh" "$ODEV_PATH" "$KEY")"
-
-# read command flags
 mapfile -t flags < <("$ODEV_PATH/src/cmd_flags_read.sh" "$ODEV_PATH" "$KEY")
-
-# read mandatory flags
 mandatory_flags="$("$ODEV_PATH/src/cmd_mandatory_flags_read.sh" "$ODEV_PATH" "$KEY")"
 
 # (maybe) print help
@@ -43,6 +63,8 @@ if [[ -n "$parsed_flags" ]]; then
     V["$k"]="$v"
   done <<< "$parsed_flags"
 fi
+
+# assign flags
 ngpus=${V[ngpus]}
 nthreads=${V[nthreads]}
 minbytes=${V[minbytes]}
@@ -51,24 +73,18 @@ iters=${V[iters]}
 datatype=${V[datatype]}
 stepfactor=${V[stepfactor]}
 
+# check on flags
+# ...
+
 # set command flags
 flags="--ngpus $ngpus --nthreads $nthreads --minbytes $minbytes --maxbytes $maxbytes --iters $iters --datatype $datatype --stepfactor $stepfactor"
 
-# format
-bold=$(tput bold)
-italic=$(tput sitm 2>/dev/null || true)
-normal=$(tput sgr0)
-
-# get hostname
-url="${HOSTNAME}"
-hostname="${url%%.*}"
-
 # constants
-CMDB_PATH="$(eval echo "$("$ODEV_PATH/src/read_yml.py" --db "$ODEV_PATH/constants.yml" paths cmdb)")"
-COLOR_OREOL=$($ODEV_PATH/src/color_get.sh $ODEV_PATH COLOR_OREOL)
-LOCAL_TEST="1"
-PROJECTS_PATH="$(eval echo "$("$ODEV_PATH/src/read_yml.py" --db "$ODEV_PATH/constants.yml" paths projects)")"
-VALIDATION_PROJECT_PATH="$PROJECTS_PATH/validate.$COMMAND.$hostname"
+#CMDB_PATH="$(eval echo "$("$ODEV_PATH/src/read_yml.py" --db "$ODEV_PATH/constants.yml" paths cmdb)")"
+#COLOR_OREOL=$($ODEV_PATH/src/color_get.sh $ODEV_PATH COLOR_OREOL)
+#LOCAL_TEST="1"
+#PROJECTS_PATH="$(eval echo "$("$ODEV_PATH/src/read_yml.py" --db "$ODEV_PATH/constants.yml" paths projects)")"
+#VALIDATION_PROJECT_PATH="$PROJECTS_PATH/validate.$COMMAND.$hostname"
 
 # derived
 MPI_HOME="$(eval echo "$("$ODEV_PATH/src/read_yml.py" --db "$CMDB_PATH/vars.yml" mpi home)")"
