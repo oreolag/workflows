@@ -19,12 +19,7 @@ print_help() {
   echo "Commit and push git changes for a workflow or workflow command."
   echo
   echo "${bold}USAGE:${normal}"
-  echo "  git_push.sh [flags]"
-  echo
-  echo "${bold}FLAGS:${normal}"
-  echo "    --workflow   Workflow name"
-  echo "    --command    Command name (new, build, ${italic}program,${normal} run, validate)"
-  echo "    --comment    Commit subject"
+  echo "  git_push.sh [comment]"
   echo
   echo "${bold}INHERITED FLAGS:${normal}"
   echo "  -h, --help       Show this help"
@@ -62,6 +57,27 @@ read -r command < /dev/tty
 printf "comment: " > /dev/tty
 read -r msg < /dev/tty
 
+# resolve file
+if [[ "$command" == *.sh ]]; then
+  file="$workflow/$command"
+  command_name="${command%.sh}"
+else
+  file="$workflow/$command.sh"
+  command_name="$command"
+fi
+
+# validate workflow
+if [[ ! -d "$workflow" ]]; then
+  echo "Workflow not found: $workflow"
+  exit 1
+fi
+
+# validate command
+if [[ ! -f "$file" ]]; then
+  echo "Command not found: $workflow $command_name"
+  exit 1
+fi
+
 # configure git identity if missing
 if ! git config user.name >/dev/null; then
   git config user.name "$(gh api user --jq .login)"
@@ -76,23 +92,6 @@ branch="$(git rev-parse --abbrev-ref HEAD)"
 if [[ "$branch" == "main" ]]; then
   git checkout -b my_workflows
   branch="my_workflows"
-fi
-
-# resolve file
-if [[ "$command" == *.sh ]]; then
-  file="$workflow/$command"
-else
-  file="$workflow/$command.sh"
-fi
-
-if [[ ! -d "$workflow" ]]; then
-  echo "Workflow not found: $workflow"
-  exit 1
-fi
-
-if [[ ! -f "$file" ]]; then
-  echo "Command not found: $command $workflow"
-  exit 1
 fi
 
 git add "$file"
