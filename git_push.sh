@@ -9,7 +9,6 @@ fi
 
 workflow=""
 command=""
-interactive="0"
 
 # format
 bold=$(tput bold)
@@ -20,12 +19,7 @@ print_help() {
   echo "Commit and push git changes for a workflow or workflow command."
   echo
   echo "${bold}USAGE:${normal}"
-  echo "  git_push.sh [comment] [flags]"
-  echo
-  echo "${bold}FLAGS:${normal}"
-  echo "    --workflow   Workflow name"
-  echo "    --command    Command name (new, build, ${italic}program,${normal} run, validate)"
-  echo "    --comment    Commit subject"
+  echo "  git_push.sh [comment]"
   echo
   echo "${bold}INHERITED FLAGS:${normal}"
   echo "  -h, --help       Show this help"
@@ -34,18 +28,6 @@ print_help() {
 # parse flags
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --workflow)
-      workflow="${2:-}"
-      shift 2
-      ;;
-    --command)
-      command="${2:-}"
-      shift 2
-      ;;
-    --comment)
-      interactive="1"
-      shift
-      ;;
     --help|-h)
       print_help
       exit 0
@@ -65,21 +47,15 @@ git rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
 
 cd "$(git rev-parse --show-toplevel)"
 
-# interactive prompt
-if [[ "$interactive" == "1" ]]; then
-  if [[ -z "$workflow" ]]; then
-    printf "workflow: " > /dev/tty
-    read -r workflow < /dev/tty
-  fi
+# interactive prompts
+printf "workflow: " > /dev/tty
+read -r workflow < /dev/tty
 
-  if [[ -z "$command" ]]; then
-    printf "command: " > /dev/tty
-    read -r command < /dev/tty
-  fi
+printf "command: " > /dev/tty
+read -r command < /dev/tty
 
-  printf "comment: " > /dev/tty
-  read -r msg < /dev/tty
-fi
+printf "comment: " > /dev/tty
+read -r msg < /dev/tty
 
 # configure git identity if missing
 if ! git config user.name >/dev/null; then
@@ -90,41 +66,31 @@ if ! git config user.email >/dev/null; then
   git config user.email "$(gh api user --jq .login)@users.noreply.github.com"
 fi
 
-# if still on main, create a my_workflows branch
+# create branch if needed
 branch="$(git rev-parse --abbrev-ref HEAD)"
 if [[ "$branch" == "main" ]]; then
   git checkout -b my_workflows
   branch="my_workflows"
 fi
 
-# stage changes
-if [[ -n "$workflow" ]]; then
-  if [[ ! -d "$workflow" ]]; then
-    echo "Workflow not found: $workflow"
-    exit 1
-  fi
-
-  if [[ -n "$command" ]]; then
-    if [[ "$command" == *.sh ]]; then
-      file="$workflow/$command"
-      command_name="${command%.sh}"
-    else
-      file="$workflow/$command.sh"
-      command_name="$command"
-    fi
-
-    if [[ ! -f "$file" ]]; then
-      echo "Command not found: $command_name $workflow"
-      exit 1
-    fi
-
-    git add "$file"
-  else
-    git add "$workflow"
-  fi
+# resolve file
+if [[ "$command" == *.sh ]]; then
+  file="$workflow/$command"
 else
-  git add -A
+  file="$workflow/$command.sh"
 fi
+
+if [[ ! -d "$workflow" ]]; then
+  echo "Workflow not found: $workflow"
+  exit 1
+fi
+
+if [[ ! -f "$file" ]]; then
+  echo "Command not found: $command $workflow"
+  exit 1
+fi
+
+git add "$file"
 
 if git diff --cached --quiet; then
   echo "Nothing to commit."
