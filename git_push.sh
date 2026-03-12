@@ -20,16 +20,11 @@ if ! git config user.email >/dev/null; then
   git config user.email "$(gh api user --jq .login)@users.noreply.github.com"
 fi
 
-# if still on main, create a branch automatically from the first workflow folder found
+# if still on main, create a my_workflows branch 
 branch="$(git rev-parse --abbrev-ref HEAD)"
 if [[ "$branch" == "main" ]]; then
-  workflow_name="$(find . -mindepth 1 -maxdepth 1 -type d ! -name '.git' | head -n 1 | sed 's|^\./||')"
-  if [[ -z "$workflow_name" ]]; then
-    echo "Error: could not derive workflow branch name"
-    exit 1
-  fi
-  git checkout -b "$workflow_name"
-  branch="$workflow_name"
+  git checkout -b my_workflows
+  branch="my_workflows"
 fi
 
 git add -A
