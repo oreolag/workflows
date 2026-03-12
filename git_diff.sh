@@ -10,7 +10,7 @@ italic=$(tput sitm 2>/dev/null || true)
 normal=$(tput sgr0)
 
 print_help() {
-  echo "Show git differences for a workflow or workflow command."
+  echo "Show git differences for a workflow command."
   echo
   echo "${bold}USAGE:${normal}"
   echo "  git_diff.sh [flags]"
