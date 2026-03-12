@@ -71,14 +71,8 @@ else
   command_name="$command"
 fi
 
-# validate workflow
-if [[ ! -d "$workflow" ]]; then
-  echo "Workflow not found: $workflow"
-  exit 1
-fi
-
-# validate command
-if [[ ! -f "$file" ]]; then
+# validate workflow + command together (odev style)
+if [[ ! -d "$workflow" ]] || [[ ! -f "$file" ]]; then
   echo "Command not found: $workflow $command_name"
   exit 1
 fi

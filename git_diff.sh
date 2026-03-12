@@ -71,14 +71,6 @@ if [[ -z "$command" ]]; then
 fi
 
 # -----------------------------
-# Validate workflow
-# -----------------------------
-if [[ ! -d "$workflow" ]]; then
-  echo "Workflow not found: $workflow"
-  exit 1
-fi
-
-# -----------------------------
 # Determine file
 # -----------------------------
 if [[ -n "$command" ]]; then
@@ -90,8 +82,8 @@ if [[ -n "$command" ]]; then
     command_name="$command"
   fi
 
-  if [[ ! -f "$file" ]]; then
-    echo "Command not found: $command_name $workflow"
+  if [[ ! -d "$workflow" ]] || [[ ! -f "$file" ]]; then
+    echo "Command not found: $workflow $command_name"
     exit 1
   fi
 
