@@ -95,21 +95,21 @@ if [[ -n "$command" ]]; then
     exit 1
   fi
 
-  # tracked file
   if git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
     git diff -- "$file"
   else
-    # untracked file
-    git diff --no-index /dev/null "$file" || true
+    echo "Error: use git_push.sh first"
+    exit 1
   fi
 
 else
   # diff entire workflow
-  find "$workflow" -type f | while read -r file; do
+  while read -r file; do
     if git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
       git diff -- "$file"
     else
-      git diff --no-index /dev/null "$file" || true
+      echo "Error: use git_push.sh first"
+      exit 1
     fi
-  done
+  done < <(find "$workflow" -type f)
 fi

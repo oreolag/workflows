@@ -19,7 +19,12 @@ print_help() {
   echo "Commit and push git changes for a workflow or workflow command."
   echo
   echo "${bold}USAGE:${normal}"
-  echo "  git_push.sh [comment]"
+  echo "  git_push.sh [flags]"
+  echo
+  echo "${bold}FLAGS:${normal}"
+  echo "    --workflow   Workflow name"
+  echo "    --command    Command name (new, build, ${italic}program,${normal} run, validate)"
+  echo "    --comment    Commit subject"
   echo
   echo "${bold}INHERITED FLAGS:${normal}"
   echo "  -h, --help       Show this help"
