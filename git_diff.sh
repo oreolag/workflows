@@ -4,6 +4,9 @@ set -euo pipefail
 workflow=""
 command=""
 
+# -----------------------------
+# Parse flags
+# -----------------------------
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --workflow)
@@ -21,6 +24,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# -----------------------------
+# Ensure inside git repo
+# -----------------------------
 git rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
   echo "Error: not inside a git repository"
   exit 1
@@ -28,28 +34,51 @@ git rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
 
 cd "$(git rev-parse --show-toplevel)"
 
-if [[ ! -r /dev/tty || ! -w /dev/tty ]]; then
-  echo "git_dif.sh: not interactive"
-  exit 1
-fi
-
+# -----------------------------
+# Interactive prompt
+# -----------------------------
 if [[ -z "$workflow" ]]; then
-  printf 'workflow: ' > /dev/tty
+  printf "workflow: " > /dev/tty
   read -r workflow < /dev/tty
 fi
 
 if [[ -z "$command" ]]; then
-  printf 'command: ' > /dev/tty
+  printf "command: " > /dev/tty
   read -r command < /dev/tty
 fi
 
-if [[ -z "$workflow" ]]; then
-  echo "Missing required flag: --workflow"
-  exit 1
-fi
+# -----------------------------
+# Determine target
+# -----------------------------
+if [[ -n "$command" ]]; then
+  if [[ "$command" == *.sh ]]; then
+    file="$workflow/$command"
+  else
+    file="$workflow/$command.sh"
+  fi
 
-if [[ -z "$command" ]]; then
-  git diff -- "$workflow/"
+  if [[ ! -f "$file" ]]; then
+    echo "File not found: $file"
+    exit 1
+  fi
+
+  if git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
+    git diff -- "$file"
+  else
+    git diff --no-index /dev/null "$file" || true
+  fi
+
 else
-  git diff -- "$workflow/$command.sh"
+  if [[ ! -d "$workflow" ]]; then
+    echo "Workflow not found: $workflow"
+    exit 1
+  fi
+
+  find "$workflow" -type f | while read -r file; do
+    if git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
+      git diff -- "$file"
+    else
+      git diff --no-index /dev/null "$file" || true
+    fi
+  done
 fi
