@@ -71,6 +71,9 @@ fi
 # assign flags
 name=${V[name]}
 
+# replace spaces with "_"
+name="${name// /_}"
+
 # create folder
 mkdir -p $PROJECTS_PATH/$name
 
