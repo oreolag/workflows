@@ -18,7 +18,7 @@ print_help() {
   echo
   echo "${bold}FLAGS:${normal}"
   echo "    --workflow   Workflow name"
-  echo "    --file       File name"
+  echo "    --file       Workflow file name (add, modify, or delete)"
   echo "    --comment    Commit subject"
   echo
   echo "${bold}INHERITED FLAGS:${normal}"
@@ -81,8 +81,14 @@ fi
 # set file
 file="$workflow/$file"
 
-# validate workflow + file together
-if [[ ! -d "$workflow" ]] || [[ ! -f "$file" ]]; then
+# validate workflow
+if [[ ! -d "$workflow" ]]; then
+  echo "File not found: $file"
+  exit 1
+fi
+
+# validate file (existing or tracked-for-deletion)
+if [[ ! -f "$file" ]] && ! git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
   echo "File not found: $file"
   exit 1
 fi
@@ -103,7 +109,8 @@ if [[ "$branch" == "main" ]]; then
   branch="$github_branch"
 fi
 
-git add "$file"
+# stage file change (including deletion)
+git add -A -- "$file"
 
 if git diff --cached --quiet; then
   echo "Nothing to commit."
