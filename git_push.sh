@@ -11,7 +11,7 @@ fi
 github_branch=$(cat ./GITHUB_PUSH_BRANCH)
 
 workflow=""
-command=""
+file=""
 
 # format
 bold=$(tput bold)
@@ -19,14 +19,14 @@ italic=$(tput sitm 2>/dev/null || true)
 normal=$(tput sgr0)
 
 print_help() {
-  echo "Commit and push git changes for a workflow command."
+  echo "Commit and push git changes for a workflow."
   echo
   echo "${bold}USAGE:${normal}"
   echo "  git_push.sh [flags]"
   echo
   echo "${bold}FLAGS:${normal}"
   echo "    --workflow   Workflow name"
-  echo "    --command    Command name (new, build, ${italic}program,${normal} run, validate)"
+  echo "    --file       File name"
   echo "    --comment    Commit subject"
   echo 
   echo "${bold}INHERITED FLAGS:${normal}"
@@ -59,24 +59,24 @@ cd "$(git rev-parse --show-toplevel)"
 printf "workflow: " > /dev/tty
 read -r workflow < /dev/tty
 
-printf "command: " > /dev/tty
-read -r command < /dev/tty
+printf "file: " > /dev/tty
+read -r file < /dev/tty
 
 printf "comment: " > /dev/tty
 read -r msg < /dev/tty
 
 # resolve file
-if [[ "$command" == *.sh ]]; then
-  file="$workflow/$command"
-  command_name="${command%.sh}"
+if [[ "$file" == *.sh ]]; then
+  file="$workflow/$file"
+  file_name="${file%.sh}"
 else
-  file="$workflow/$command.sh"
-  command_name="$command"
+  file="$workflow/$file.sh"
+  file_name="$file"
 fi
 
-# validate workflow + command together (odev style)
+# validate workflow + file together (odev style)
 if [[ ! -d "$workflow" ]] || [[ ! -f "$file" ]]; then
-  echo "Command not found: $workflow $command_name"
+  echo "File not found: $workflow/$file_name"
   exit 1
 fi
 
