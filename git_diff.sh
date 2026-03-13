@@ -75,15 +75,15 @@ fi
 # -----------------------------
 if [[ -n "$file" ]]; then
   if [[ "$file" == *.sh ]]; then
+    file_name="${file%.sh}"
     file="$workflow/$file"
-    command_name="${file%.sh}"
   else
+    file_name="$file"
     file="$workflow/$file.sh"
-    command_name="$file"
   fi
 
   if [[ ! -d "$workflow" ]] || [[ ! -f "$file" ]]; then
-    echo "File not found: $workflow/$command_name"
+    echo "File not found: $workflow/$file_name"
     exit 1
   fi
 
