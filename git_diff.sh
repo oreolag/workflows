@@ -74,16 +74,10 @@ fi
 # Determine file
 # -----------------------------
 if [[ -n "$file" ]]; then
-  if [[ "$file" == *.sh ]]; then
-    file_name="${file%.sh}"
-    file="$workflow/$file"
-  else
-    file_name="$file"
-    file="$workflow/$file.sh"
-  fi
+  file="$workflow/$file"
 
   if [[ ! -d "$workflow" ]] || [[ ! -f "$file" ]]; then
-    echo "File not found: $workflow/$file_name"
+    echo "File not found: $file"
     exit 1
   fi
 
@@ -93,7 +87,6 @@ if [[ -n "$file" ]]; then
     echo "Error: use git_push.sh first"
     exit 1
   fi
-
 else
   # diff entire workflow
   while read -r file; do

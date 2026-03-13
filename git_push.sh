@@ -78,18 +78,12 @@ if [[ "$msg" == "Update" ]]; then
   read -r msg < /dev/tty
 fi
 
-# resolve file
-if [[ "$file" == *.sh ]]; then
-  file_name="${file%.sh}"
-  file="$workflow/$file"
-else
-  file_name="$file"
-  file="$workflow/$file.sh"
-fi
+# set file
+file="$workflow/$file"
 
 # validate workflow + file together
 if [[ ! -d "$workflow" ]] || [[ ! -f "$file" ]]; then
-  echo "File not found: $file_name"
+  echo "File not found: $file"
   exit 1
 fi
 
