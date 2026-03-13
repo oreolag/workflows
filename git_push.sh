@@ -7,6 +7,9 @@ if [[ $# -gt 0 && "$1" != --* ]]; then
   shift
 fi
 
+# get GITHUB_PUSH_BRANCH
+github_branch=$(cat ./GITHUB_PUSH_BRANCH)
+
 workflow=""
 command=""
 
