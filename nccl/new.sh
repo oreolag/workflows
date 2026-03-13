@@ -21,13 +21,21 @@ italic=$(tput sitm 2>/dev/null || true)
 normal=$(tput sgr0)
 
 # constants
-# ...
+PROJECTS_PATH="$(eval echo "$("$ODEV_PATH/src/read_yml.py" --db "$ODEV_PATH/constants.yml" paths projects)")"
 
 # check on users
 # ...
 
 # check on tools
 # ...
+
+# set projects folder
+if [[ ! -d "$PROJECTS_PATH" ]]; then
+  mkdir -p "$PROJECTS_PATH"
+  cp "$ODEV_PATH/src/git_push.sh" "$PROJECTS_PATH"
+  cp "$ODEV_PATH/src/git_diff.sh" "$PROJECTS_PATH"
+  chmod +x "$PROJECTS_PATH/git_push.sh" "$PROJECTS_PATH/git_diff.sh"
+fi
 
 # set KEY
 KEY="$(printf '%s_%s' "$COMMAND" "$SUBCOMMAND" | tr '[:lower:]' '[:upper:]')"
@@ -46,6 +54,26 @@ print_both="0"
   "$print_range" "$print_default" "$print_both" \
   "${flags[@]}" -- "$@" && exit 0 || true
 
-echo "This is new nccl!"
+# parse flags
+parsed_flags="$("$ODEV_PATH/src/cmd_parse.sh" --params "${flags[@]}" -- "$@")" || exit 1
+
+# run interactive prompt
+parsed_flags="$("$ODEV_PATH/src/cmd_prompt.sh" --required "$mandatory_flags" --params "${flags[@]}" -- "$parsed_flags")" || exit 1
+
+# read flags
+if [[ -n "$parsed_flags" ]]; then
+  declare -A V
+  while IFS='=' read -r k v; do
+    V["$k"]="$v"
+  done <<< "$parsed_flags"
+fi
+
+# assign flags
+name=${V[name]}
+
+# create folder
+mkdir -p $PROJECTS_PATH/$name
+
+echo "Your new nccl project $name has been created!"
 
 # author: https://github.com/jmoya82
