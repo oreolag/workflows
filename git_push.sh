@@ -2,11 +2,6 @@
 set -euo pipefail
 
 msg="Update"
-if [[ $# -gt 0 && "$1" != --* ]]; then
-  msg="$1"
-  shift
-fi
-
 workflow=""
 file=""
 
@@ -33,6 +28,18 @@ print_help() {
 # parse flags
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --workflow)
+      workflow="${2:-}"
+      shift 2
+      ;;
+    --file)
+      file="${2:-}"
+      shift 2
+      ;;
+    --comment)
+      msg="${2:-}"
+      shift 2
+      ;;
     --help|-h)
       print_help
       exit 0
@@ -56,14 +63,20 @@ cd "$(git rev-parse --show-toplevel)"
 github_branch="$(cat "./GITHUB_PUSH_BRANCH")"
 
 # interactive prompts
-printf "workflow: " > /dev/tty
-read -r workflow < /dev/tty
+if [[ -z "$workflow" ]]; then
+  printf "workflow: " > /dev/tty
+  read -r workflow < /dev/tty
+fi
 
-printf "file: " > /dev/tty
-read -r file < /dev/tty
+if [[ -z "$file" ]]; then
+  printf "file: " > /dev/tty
+  read -r file < /dev/tty
+fi
 
-printf "comment: " > /dev/tty
-read -r msg < /dev/tty
+if [[ "$msg" == "Update" ]]; then
+  printf "comment: " > /dev/tty
+  read -r msg < /dev/tty
+fi
 
 # resolve file
 if [[ "$file" == *.sh ]]; then
