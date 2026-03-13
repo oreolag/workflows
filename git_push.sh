@@ -7,9 +7,6 @@ if [[ $# -gt 0 && "$1" != --* ]]; then
   shift
 fi
 
-# get GITHUB_PUSH_BRANCH
-github_branch=$(cat ./GITHUB_PUSH_BRANCH)
-
 workflow=""
 file=""
 
@@ -28,7 +25,7 @@ print_help() {
   echo "    --workflow   Workflow name"
   echo "    --file       File name"
   echo "    --comment    Commit subject"
-  echo 
+  echo
   echo "${bold}INHERITED FLAGS:${normal}"
   echo "  -h, --help       Show this help"
 }
@@ -55,6 +52,9 @@ git rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
 
 cd "$(git rev-parse --show-toplevel)"
 
+# get GITHUB_PUSH_BRANCH
+github_branch="$(cat "./GITHUB_PUSH_BRANCH")"
+
 # interactive prompts
 printf "workflow: " > /dev/tty
 read -r workflow < /dev/tty
@@ -67,16 +67,16 @@ read -r msg < /dev/tty
 
 # resolve file
 if [[ "$file" == *.sh ]]; then
-  file="$workflow/$file"
   file_name="${file%.sh}"
+  file="$workflow/$file"
 else
-  file="$workflow/$file.sh"
   file_name="$file"
+  file="$workflow/$file.sh"
 fi
 
-# validate workflow + file together (odev style)
+# validate workflow + file together
 if [[ ! -d "$workflow" ]] || [[ ! -f "$file" ]]; then
-  echo "File not found: $workflow/$file_name"
+  echo "File not found: $file_name"
   exit 1
 fi
 
@@ -92,8 +92,8 @@ fi
 # create branch if needed
 branch="$(git rev-parse --abbrev-ref HEAD)"
 if [[ "$branch" == "main" ]]; then
-  git checkout -b my_workflows
-  branch="my_workflows"
+  git checkout -b "$github_branch"
+  branch="$github_branch"
 fi
 
 git add "$file"
