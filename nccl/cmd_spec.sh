@@ -3,21 +3,21 @@
 # new
 NEW_NCCL_DESCRIPTION="Creates a NVIDIA Collective Communications Library (NCCL) project"
 NEW_NCCL_FLAGS=(
-  "name,n,NCCL project name,-,-"
+  "name,n,Project name,-,-"
 )
 NEW_NCCL_FLAGS_MANDATORY="name"
 
 # build
 BUILD_NCCL_DESCRIPTION="Builds your NVIDIA Collective Communications Library (NCCL) project"
 BUILD_NCCL_FLAGS=(
-  "name,n,NCCL project name,-,-"
+  "name,n,Project name,-,-"
 )
 BUILD_NCCL_FLAGS_MANDATORY="name"
 
 # program
 PROGRAM_NCCL_DESCRIPTION="Programs your NCCL project to a specified device"
 PROGRAM_NCCL_FLAGS=(
-  "name,n,NCCL project name,-,-"
+  "name,n,Project name,-,-"
   "device,d,Device index,-,-"
 )
 PROGRAM_NCCL_FLAGS_MANDATORY="name,device"
@@ -25,7 +25,7 @@ PROGRAM_NCCL_FLAGS_MANDATORY="name,device"
 # run
 RUN_NCCL_DESCRIPTION="Runs your NCCL project"
 RUN_NCCL_FLAGS=(
-  "name,n,NCCL project name,-,-"
+  "name,n,Project name,-,-"
 )
 RUN_NCCL_FLAGS_MANDATORY="name"
 
