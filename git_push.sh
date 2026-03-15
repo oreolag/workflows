@@ -113,7 +113,7 @@ fi
 git add -A -- "$file"
 
 if git diff --cached --quiet; then
-  echo "Nothing to commit."
+  echo "Nothing to commit: $file"
   exit 0
 fi
 

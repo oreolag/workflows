@@ -82,7 +82,13 @@ if [[ -n "$file" ]]; then
   fi
 
   if git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
-    git diff -- "$file"
+
+    if git diff --quiet -- "$file"; then
+      echo "Nothing to commit: $file"
+    else
+      git diff -- "$file"
+    fi
+
   else
     echo "Error: use git_push.sh first"
     exit 1
