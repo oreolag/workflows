@@ -22,6 +22,8 @@ normal=$(tput sgr0)
 
 # constants
 PROJECTS_PATH="$(eval echo "$("$ODEV_PATH/src/read_yml.py" --db "$ODEV_PATH/constants.yml" paths projects)")"
+WORKFLOWS_PATH="$ODEV_PATH/submodules/workflows"
+WORKFLOWS_USER_PATH="$(eval echo "$("$ODEV_PATH/src/read_yml.py" --db "$ODEV_PATH/constants.yml" paths workflows)")"
 
 # check on users
 # ...
@@ -41,9 +43,16 @@ fi
 KEY="$(printf '%s_%s' "$COMMAND" "$SUBCOMMAND" | tr '[:lower:]' '[:upper:]')"
 
 # read command description, command flags, and mandatory flags
-command_description="$("$ODEV_PATH/src/cmd_description_read.sh" "$ODEV_PATH" "$KEY")"
-mapfile -t flags < <("$ODEV_PATH/src/cmd_flags_read.sh" "$ODEV_PATH" "$KEY")
-mandatory_flags="$("$ODEV_PATH/src/cmd_mandatory_flags_read.sh" "$ODEV_PATH" "$KEY")"
+target="$(readlink -f "$ODEV_PATH/cmd/new/$SUBCOMMAND.sh")"
+if [[ "$target" == "$WORKFLOWS_USER_PATH/"* ]]; then
+    command_description="$("$ODEV_PATH/src/cmd_description_read.sh" "$ODEV_PATH" "$KEY" --db "$WORKFLOWS_USER_PATH/$SUBCOMMAND/cmd_spec.sh")"
+    mapfile -t flags < <("$ODEV_PATH/src/cmd_flags_read.sh" "$ODEV_PATH" "$KEY" --db "$WORKFLOWS_USER_PATH/$SUBCOMMAND/cmd_spec.sh")
+    mandatory_flags="$("$ODEV_PATH/src/cmd_mandatory_flags_read.sh" "$ODEV_PATH" "$KEY" --db "$WORKFLOWS_USER_PATH/$SUBCOMMAND/cmd_spec.sh")"
+else
+    command_description="$("$ODEV_PATH/src/cmd_description_read.sh" "$ODEV_PATH" "$KEY")"
+    mapfile -t flags < <("$ODEV_PATH/src/cmd_flags_read.sh" "$ODEV_PATH" "$KEY")
+    mandatory_flags="$("$ODEV_PATH/src/cmd_mandatory_flags_read.sh" "$ODEV_PATH" "$KEY")"
+fi
 
 # (maybe) print help
 print_range="0"
@@ -70,13 +79,78 @@ fi
 
 # assign flags
 name=${V[name]}
+push=${V[push]}
 
 # replace spaces with "_"
 name="${name// /_}"
 
-# create folder
-mkdir -p $PROJECTS_PATH/$name
+# check on flags
+# ...
 
-echo "Project created: $COMMAND/$name"
+# set command flags
+# ...
+
+# derived
+# ...
+
+# check if exists
+if [[ -d "$PROJECTS_PATH/$SUBCOMMAND/$name" ]]; then
+  echo "Project already exists: $SUBCOMMAND/$name"
+  exit 1
+fi
+
+# create folder
+mkdir -p $PROJECTS_PATH/$SUBCOMMAND/$name
+
+# add WORKFLOW
+[[ -f "$PROJECTS_PATH/$SUBCOMMAND/$name/WORKFLOW_NAME" ]] || echo "$SUBCOMMAND" > "$PROJECTS_PATH/$SUBCOMMAND/$name/WORKFLOW_NAME"
+
+# push to GitHub
+if [ "$push" = "1" ]; then
+  # login
+  github_auth_status=$($ODEV_PATH/src/gh_auth_status.sh)
+  if [ "$github_auth_status" = "0" ]; then
+    eval "gh auth login"
+  fi
+
+  # get GitHub user
+  github_user="$(gh api user --jq .login)"
+
+  # check if repository already exists in the account
+  if gh repo view "${github_user}/$name" >/dev/null 2>&1; then
+    echo "Repository already exists: $github_user/$name"
+    exit 1
+  fi
+
+  # move to project
+  cd "$PROJECTS_PATH/$SUBCOMMAND/$name"
+
+  # initialize git repo if needed
+  if [[ ! -d ".git" ]]; then
+    git init
+  fi
+
+  # configure git identity if missing
+  if ! git config user.name >/dev/null; then
+    git config user.name "$github_user"
+  fi
+
+  if ! git config user.email >/dev/null; then
+    git config user.email "${github_user}@users.noreply.github.com"
+  fi
+
+  # initial commit if needed
+  if ! git rev-parse --verify HEAD >/dev/null 2>&1; then
+    git add .
+    git commit -m "Initial commit"
+  fi
+
+  gh repo create "$github_user/$name" --private --source=. --remote=origin --push
+fi
+
+# add your code here!
+# ...
+
+echo "Project created: $SUBCOMMAND/$name"
 
 # author: https://github.com/jmoya82
