@@ -77,6 +77,6 @@ name="${name// /_}"
 # create folder
 mkdir -p $PROJECTS_PATH/$name
 
-echo "Your new nccl project $name has been created!"
+echo "Project created: $COMMAND/$name"
 
 # author: https://github.com/jmoya82
