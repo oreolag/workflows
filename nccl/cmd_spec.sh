@@ -9,21 +9,21 @@ NEW_NCCL_FLAGS=(
 NEW_NCCL_FLAGS_MANDATORY="name,push"
 
 # build
-BUILD_NCCL_DESCRIPTION="Builds your NVIDIA Collective Communications Library (NCCL) project"
+BUILD_NCCL_DESCRIPTION="Builds your nccl project"
 BUILD_NCCL_FLAGS=(
   "name,n,Project name,-,-"
 )
 BUILD_NCCL_FLAGS_MANDATORY="name"
 
 # delete
-DELETE_NCCL_DESCRIPTION="Deletes a NCCL project"
+DELETE_NCCL_DESCRIPTION="Deletes a nccl project"
 DELETE_NCCL_FLAGS=(
   "name,n,Project name,-,-"
 )
 DELETE_NCCL_FLAGS_MANDATORY="name"
 
 # program
-PROGRAM_NCCL_DESCRIPTION="Programs your NCCL project to a specified device"
+PROGRAM_NCCL_DESCRIPTION="Programs your nccl project to a specified device"
 PROGRAM_NCCL_FLAGS=(
   "name,n,Project name,-,-"
   "device,d,Device index,-,-"
@@ -31,7 +31,7 @@ PROGRAM_NCCL_FLAGS=(
 PROGRAM_NCCL_FLAGS_MANDATORY="name,device"
 
 # run
-RUN_NCCL_DESCRIPTION="Runs your NCCL project"
+RUN_NCCL_DESCRIPTION="Runs your nccl project"
 RUN_NCCL_FLAGS=(
   "name,n,Project name,-,-"
 )
