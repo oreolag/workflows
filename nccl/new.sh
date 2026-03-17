@@ -85,7 +85,10 @@ push=${V[push]}
 name="${name// /_}"
 
 # check on flags
-# ...
+if [[ "$push" != "0" && "$push" != "1" ]]; then
+  echo "Invalid flag value: --push"
+  exit 1
+fi
 
 # set command flags
 # ...
