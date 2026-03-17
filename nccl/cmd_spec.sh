@@ -15,6 +15,13 @@ BUILD_NCCL_FLAGS=(
 )
 BUILD_NCCL_FLAGS_MANDATORY="name"
 
+# delete
+DELETE_NCCL_DESCRIPTION="Deletes a NCCL project"
+DELETE_NCCL_FLAGS=(
+  "name,n,Project name,-,-"
+)
+DELETE_NCCL_FLAGS_MANDATORY="name"
+
 # program
 PROGRAM_NCCL_DESCRIPTION="Programs your NCCL project to a specified device"
 PROGRAM_NCCL_FLAGS=(
