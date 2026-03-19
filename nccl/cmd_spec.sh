@@ -48,4 +48,4 @@ VALIDATE_NCCL_FLAGS=(
   "datatype,d,Specify which datatype to use,int8|half|bfloat16|float,float"
   "stepfactor,f,Multiplication factor between sizes,2|4|8,2"
 )
-VALIDATE_NCCL_FLAGS_MANDATORY="model,ngpus,minbytes,maxbytes"
+VALIDATE_NCCL_FLAGS_MANDATORY="ngpus,minbytes,maxbytes"
