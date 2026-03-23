@@ -18,11 +18,11 @@ print_help() {
   echo
   echo "${bold}FLAGS:${normal}"
   echo "    --workflow   Workflow name"
-  echo "    --file       Workflow file name (add, modify, or delete)"
+  echo "    --file       Workflow file name (optional; if omitted, the whole workflow is staged)"
   echo "    --comment    Commit subject"
   echo
   echo "${bold}INHERITED FLAGS:${normal}"
-  echo "  -h, --help       Show this help"
+  echo "  -h, --help     Show this help"
 }
 
 # parse flags
@@ -78,19 +78,23 @@ if [[ "$msg" == "Update" ]]; then
   read -r msg < /dev/tty
 fi
 
-# set file
-file="$workflow/$file"
-
 # validate workflow
-if [[ ! -d "$workflow" ]]; then
-  echo "File not found: $file"
+if [[ ! -d "$workflow" ]] && ! git ls-files --error-unmatch "$workflow" >/dev/null 2>&1; then
+  echo "Workflow not found: $workflow"
   exit 1
 fi
 
-# validate file (existing or tracked-for-deletion)
-if [[ ! -f "$file" ]] && ! git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
-  echo "File not found: $file"
-  exit 1
+# set target
+if [[ -n "$file" ]]; then
+  target="$workflow/$file"
+
+  # validate file (existing or tracked-for-deletion)
+  if [[ ! -f "$target" ]] && ! git ls-files --error-unmatch "$target" >/dev/null 2>&1; then
+    echo "File not found: $target"
+    exit 1
+  fi
+else
+  target="$workflow"
 fi
 
 # configure git identity if missing
@@ -110,10 +114,10 @@ if [[ "$branch" == "main" ]]; then
 fi
 
 # stage file change (including deletion)
-git add -A -- "$file"
+git add -A -- "$target"
 
 if git diff --cached --quiet; then
-  echo "Nothing to commit: $file"
+  echo "Nothing to commit: $target"
   exit 0
 fi
 
