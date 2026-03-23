@@ -68,8 +68,9 @@ if [[ -z "$workflow" ]]; then
   read -r workflow < /dev/tty
 fi
 
+# optional file prompt (press Enter to skip → whole workflow)
 if [[ -z "$file" ]]; then
-  printf "file: " > /dev/tty
+  printf "file (optional): " > /dev/tty
   read -r file < /dev/tty
 fi
 
