@@ -2,7 +2,7 @@
 
 # new
 NEW_NCCL_DESCRIPTION="Creates a NVIDIA Collective Communications Library (NCCL) project"
-NEW_FLAGS=(
+NEW_NCCL_FLAGS=(
   "name,n,Project name,-,-"
   "push,p,Push to GitHub,0|1,1"
 )
