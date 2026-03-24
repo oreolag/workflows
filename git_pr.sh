@@ -113,10 +113,17 @@ if [[ "$branch" == "main" ]]; then
   exit 1
 fi
 
-# copy/replace files if target workflow is different
+# copy/replace tracked files if target workflow is different
 if [[ "$workflow" != "$my_workflow" ]]; then
-  cp -f -- "$my_workflow"/* "$workflow"/
-  git add -A -- "$workflow"
+  while IFS= read -r src; do
+    rel="${src#$my_workflow/}"
+    dst="$workflow/$rel"
+
+    mkdir -p "$(dirname "$dst")"
+    cp -f -- "$src" "$dst"
+    git add -A -- "$dst"
+  done < <(git ls-files "$my_workflow")
+
   if ! git diff --cached --quiet; then
     git commit -m "$msg"
   fi
