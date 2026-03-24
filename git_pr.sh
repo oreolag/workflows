@@ -106,12 +106,10 @@ if [[ "$workflow" != "$my_workflow" ]] && [[ ! -d "$workflow" ]]; then
   exit 1
 fi
 
-branch="$(git rev-parse --abbrev-ref HEAD)"
+pr_branch="pr-$workflow"
 
-if [[ "$branch" == "main" ]]; then
-  echo "Error: cannot create PR from main"
-  exit 1
-fi
+git fetch upstream main
+git checkout -B "$pr_branch" upstream/main
 
 # copy/replace tracked files if target workflow is different
 if [[ "$workflow" != "$my_workflow" ]]; then
@@ -123,17 +121,20 @@ if [[ "$workflow" != "$my_workflow" ]]; then
     cp -f -- "$src" "$dst"
     git add -A -- "$dst"
   done < <(git ls-files "$my_workflow")
-
-  if ! git diff --cached --quiet; then
-    git commit -m "$msg"
-  fi
+else
+  git add -A -- "$workflow"
 fi
 
-git push origin "$branch"
-git fetch upstream main
+if git diff --cached --quiet; then
+  echo "Nothing to commit: $workflow"
+  exit 0
+fi
+
+git commit -m "$msg"
+git push -u origin "$pr_branch"
 
 gh pr create \
   --repo oreolag/workflows \
   --base main \
-  --head "$(gh api user --jq .login):$branch" \
+  --head "$(gh api user --jq .login):$pr_branch" \
   --fill
