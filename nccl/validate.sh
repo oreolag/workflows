@@ -31,7 +31,10 @@ VALIDATION_PROJECT_PATH="$PROJECTS_PATH/validate.$COMMAND.$hostname"
 # ...
 
 # check on tools
-# ...
+installed="$("$ODEV_PATH/src/required_tools_print.sh" "$ODEV_PATH" "nvidia-smi")"
+if [[ "$installed" == "0" ]]; then
+  echo "Missing tool: $tool"
+fi
 
 # set KEY
 KEY="$(printf '%s_%s' "$COMMAND" "$SUBCOMMAND" | tr '[:lower:]' '[:upper:]')"
@@ -70,7 +73,8 @@ if [[ -n "$parsed_flags" ]]; then
 fi
 
 # assign flags
-ngpus=${V[ngpus]}
+devices=${V[devices]}
+#ngpus=${V[ngpus]}
 nthreads=${V[nthreads]}
 minbytes=${V[minbytes]}
 maxbytes=${V[maxbytes]}
@@ -81,15 +85,34 @@ stepfactor=${V[stepfactor]}
 # check on flags
 # ...
 
+# check on devices
+if [[ ! "$devices" =~ ^[0-9]+(,\ ?[0-9]+)*$ ]]; then
+    echo "Invalid devices format: $devices"
+    exit 1
+fi
+
+# convert devices to an array
+devices_array=$(echo "$devices" | tr -d ' ')
+IFS=',' read -ra devices_array <<< "$devices_array"
+
+# remove duplicates
+mapfile -t devices_array < <(printf "%s\n" "${devices_array[@]}" | awk '!seen[$0]++')
+
+# nvidia-smi/CMDB validation
+for d in "${devices_array[@]}"; do
+    name_smi=$(nvidia-smi -i $d --query-gpu=name --format=csv,noheader)
+    name_cmdb=$($CMDB_PATH/cmdb_get.py --db $CMDB_PATH/$hostname.yml gpu $d name)
+    if [[ "$name_smi" != "$name_cmdb" ]]; then
+      echo "Invalid device index: $d"
+      exit 1
+    fi
+done
+
+# derive ngpus
+ngpus=${#devices_array[@]}
+
 # set command flags
 flags="--ngpus $ngpus --nthreads $nthreads --minbytes $minbytes --maxbytes $maxbytes --iters $iters --datatype $datatype --stepfactor $stepfactor"
-
-# constants
-#CMDB_PATH="$(eval echo "$("$ODEV_PATH/src/read_yml.py" --db "$ODEV_PATH/constants.yml" paths cmdb)")"
-#COLOR_OREOL=$($ODEV_PATH/src/color_get.sh $ODEV_PATH COLOR_OREOL)
-#LOCAL_TEST="1"
-#PROJECTS_PATH="$(eval echo "$("$ODEV_PATH/src/read_yml.py" --db "$ODEV_PATH/constants.yml" paths projects)")"
-#VALIDATION_PROJECT_PATH="$PROJECTS_PATH/validate.$COMMAND.$hostname"
 
 # derived
 MPI_HOME="$(eval echo "$("$ODEV_PATH/src/read_yml.py" --db "$CMDB_PATH/vars.yml" mpi home)")"
@@ -112,7 +135,7 @@ fi
 
 # run
 step_6="cd $VALIDATION_PROJECT_PATH/build"
-step_7="./all_gather_perf $flags"
+step_7="CUDA_VISIBLE_DEVICES=$devices ./all_gather_perf $flags"
 
 # echo steps
 echo ""

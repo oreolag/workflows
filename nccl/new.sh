@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# example: odev new nccl
+# example: odev new nccl2
 
 # get script location
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -52,6 +52,16 @@ command_description="$("$ODEV_PATH/src/cmd_description_read.sh" "$ODEV_PATH" "$K
 mapfile -t flags < <("$ODEV_PATH/src/cmd_flags_read.sh" "$ODEV_PATH" "$KEY" --db "$CMD_SPEC_PATH/cmd_spec.sh")
 mandatory_flags="$("$ODEV_PATH/src/cmd_mandatory_flags_read.sh" "$ODEV_PATH" "$KEY" --db "$CMD_SPEC_PATH/cmd_spec.sh")"
 
+#if [[ "$target" == "$WORKFLOWS_USER_PATH/"* ]]; then
+#    command_description="$("$ODEV_PATH/src/cmd_description_read.sh" "$ODEV_PATH" "$KEY" --db "$WORKFLOWS_USER_PATH/$SUBCOMMAND/cmd_spec.sh")"
+#    mapfile -t flags < <("$ODEV_PATH/src/cmd_flags_read.sh" "$ODEV_PATH" "$KEY" --db "$WORKFLOWS_USER_PATH/$SUBCOMMAND/cmd_spec.sh")
+#    mandatory_flags="$("$ODEV_PATH/src/cmd_mandatory_flags_read.sh" "$ODEV_PATH" "$KEY" --db "$WORKFLOWS_USER_PATH/$SUBCOMMAND/cmd_spec.sh")"
+#else
+#    command_description="$("$ODEV_PATH/src/cmd_description_read.sh" "$ODEV_PATH" "$KEY")"
+#    mapfile -t flags < <("$ODEV_PATH/src/cmd_flags_read.sh" "$ODEV_PATH" "$KEY")
+#    mandatory_flags="$("$ODEV_PATH/src/cmd_mandatory_flags_read.sh" "$ODEV_PATH" "$KEY")"
+#fi
+
 # (maybe) print help
 print_range="0"
 print_default="0"
@@ -83,10 +93,7 @@ push=${V[push]}
 name="${name// /_}"
 
 # check on flags
-if [[ "$push" != "0" && "$push" != "1" ]]; then
-  echo "Invalid flag value: --push"
-  exit 1
-fi
+# ...
 
 # set command flags
 # ...
@@ -109,10 +116,13 @@ if [[ -d "$PROJECTS_PATH/$SUBCOMMAND/$name" ]]; then
 fi
 
 # create folder
-mkdir -p $PROJECTS_PATH/$SUBCOMMAND/$name
+mkdir -p "$PROJECTS_PATH/$SUBCOMMAND/$name"
 
 # add WORKFLOW
 [[ -f "$PROJECTS_PATH/$SUBCOMMAND/$name/WORKFLOW_NAME" ]] || echo "$SUBCOMMAND" > "$PROJECTS_PATH/$SUBCOMMAND/$name/WORKFLOW_NAME"
+
+# add GITHUB_PUSH
+[[ -f "$PROJECTS_PATH/$SUBCOMMAND/$name/GITHUB_PUSH" ]] || echo "$push" > "$PROJECTS_PATH/$SUBCOMMAND/$name/GITHUB_PUSH"
 
 # push to GitHub
 if [ "$push" = "1" ]; then
@@ -125,9 +135,14 @@ if [ "$push" = "1" ]; then
   # get GitHub user
   github_user="$(gh api user --jq .login)"
 
+  # set GitHub project name
+  github_name="$SUBCOMMAND-$name"
+
   # check if repository already exists in the account
-  if gh repo view "${github_user}/$name" >/dev/null 2>&1; then
-    echo "Repository already exists: $github_user/$name"
+  if gh repo view "${github_user}/$github_name" >/dev/null 2>&1; then
+    echo "Project already exists: $github_user/$github_name"
+    # remove locally
+    rm -rf "$PROJECTS_PATH/$SUBCOMMAND/$name"
     exit 1
   fi
 
@@ -154,12 +169,10 @@ if [ "$push" = "1" ]; then
     git commit -m "Initial commit"
   fi
 
-  gh repo create "$github_user/$name" --private --source=. --remote=origin --push
+  gh repo create "$github_user/$github_name" --private --source=. --remote=origin --push
 fi
 
 # add your code here!
 # ...
 
 echo "Project created: $SUBCOMMAND/$name"
-
-# author: https://github.com/jmoya82
