@@ -74,7 +74,6 @@ fi
 
 # assign flags
 devices=${V[devices]}
-#ngpus=${V[ngpus]}
 nthreads=${V[nthreads]}
 minbytes=${V[minbytes]}
 maxbytes=${V[maxbytes]}
