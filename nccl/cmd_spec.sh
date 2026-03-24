@@ -1,46 +1,46 @@
 #!/usr/bin/env bash
 
 # new
-NEW_NCCL_DESCRIPTION="Creates a NVIDIA Collective Communications Library (NCCL) project"
-NEW_NCCL_FLAGS=(
+NEW_NCCL2_DESCRIPTION="Creates a NVIDIA Collective Communications Library (NCCL) project"
+NEW_NCCL2_FLAGS=(
   "name,n,Project name,-,-"
   "push,p,Push to GitHub,0|1,1"
 )
-NEW_NCCL_FLAGS_MANDATORY="name,push"
+NEW_NCCL2_FLAGS_MANDATORY="name,push"
 
 # build
-BUILD_NCCL_DESCRIPTION="Builds your nccl project"
-BUILD_NCCL_FLAGS=(
+BUILD_NCCL2_DESCRIPTION="Builds your nccl project"
+BUILD_NCCL2_FLAGS=(
   "name,n,Project name,-,-"
 )
-BUILD_NCCL_FLAGS_MANDATORY="name"
+BUILD_NCCL2_FLAGS_MANDATORY="name"
 
 # delete
-DELETE_NCCL_DESCRIPTION="Deletes a nccl project"
-DELETE_NCCL_FLAGS=(
+DELETE_NCCL2_DESCRIPTION="Deletes a nccl project"
+DELETE_NCCL2_FLAGS=(
   "name,n,Project name,-,-"
 )
-DELETE_NCCL_FLAGS_MANDATORY="name"
+DELETE_NCCL2_FLAGS_MANDATORY="name"
 
 # program
-PROGRAM_NCCL_DESCRIPTION="Programs your nccl project to a specified device"
-PROGRAM_NCCL_FLAGS=(
+PROGRAM_NCCL2_DESCRIPTION="Programs your nccl project to a specified device"
+PROGRAM_NCCL2_FLAGS=(
   "name,n,Project name,-,-"
   "device,d,Device index,-,-"
 )
-PROGRAM_NCCL_FLAGS_MANDATORY="name,device"
+PROGRAM_NCCL2_FLAGS_MANDATORY="name,device"
 
 # run
-RUN_NCCL_DESCRIPTION="Runs your nccl project"
-RUN_NCCL_FLAGS=(
+RUN_NCCL2_DESCRIPTION="Runs your nccl project"
+RUN_NCCL2_FLAGS=(
   "name,n,Project name,-,-"
 )
-RUN_NCCL_FLAGS_MANDATORY="name"
+RUN_NCCL2_FLAGS_MANDATORY="name"
 
 # validate
-VALIDATE_NCCL_DESCRIPTION="NVIDIA Collective Communications Library (NCCL) validation"
-VALIDATE_NCCL_FLAGS=(
-  "ngpus,g,Number of GPUs,1-8,1"
+VALIDATE_NCCL2_DESCRIPTION="NVIDIA Collective Communications Library (NCCL) validation"
+VALIDATE_NCCL2_FLAGS=(
+  "devices,d,Comma-separated list of device indices,-,-"
   "nthreads,t,Threads per process,1-64,1"
   "minbytes,b,Minimum message size,1B|4K|8M|1G,8M"
   "maxbytes,e,Maximum message size,1B|4K|1G|16G,1G"
@@ -48,4 +48,4 @@ VALIDATE_NCCL_FLAGS=(
   "datatype,d,Specify which datatype to use,int8|half|bfloat16|float,float"
   "stepfactor,f,Multiplication factor between sizes,2|4|8,2"
 )
-VALIDATE_NCCL_FLAGS_MANDATORY="ngpus,minbytes,maxbytes"
+VALIDATE_NCCL2_FLAGS_MANDATORY="devices,minbytes,maxbytes"
