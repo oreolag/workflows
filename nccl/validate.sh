@@ -36,6 +36,14 @@ if [[ "$installed" == "0" ]]; then
   echo "Missing tool: $tool"
 fi
 
+# set projects folder
+if [[ ! -d "$PROJECTS_PATH" ]]; then
+  mkdir -p "$PROJECTS_PATH"
+  cp "$ODEV_PATH/src/github_push.sh" "$PROJECTS_PATH"
+  cp "$ODEV_PATH/src/git_diff.sh" "$PROJECTS_PATH"
+  chmod +x "$PROJECTS_PATH/github_push.sh" "$PROJECTS_PATH/git_diff.sh"
+fi
+
 # set KEY
 KEY="$(printf '%s_%s' "$COMMAND" "$SUBCOMMAND" | tr '[:lower:]' '[:upper:]')"
 #KEY="${COMMAND^^}"
@@ -115,14 +123,6 @@ flags="--ngpus $ngpus --nthreads $nthreads --minbytes $minbytes --maxbytes $maxb
 
 # derived
 MPI_HOME="$(eval echo "$("$ODEV_PATH/src/read_yml.py" --db "$CMDB_PATH/vars.yml" mpi home)")"
-
-# set projects folder
-if [[ ! -d "$PROJECTS_PATH" ]]; then
-  mkdir -p "$PROJECTS_PATH"
-  cp "$ODEV_PATH/src/github_push.sh" "$PROJECTS_PATH"
-  cp "$ODEV_PATH/src/git_diff.sh" "$PROJECTS_PATH"
-  chmod +x "$PROJECTS_PATH/github_push.sh" "$PROJECTS_PATH/git_diff.sh"
-fi
 
 # steps
 # create folders
