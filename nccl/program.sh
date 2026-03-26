@@ -67,6 +67,7 @@ if [[ -n "$parsed_flags" ]]; then
 fi
 
 # assign flags
+devices=${V[devices]}
 name=${V[name]}
 
 # replace spaces with "_"
