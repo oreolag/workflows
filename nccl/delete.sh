@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# example: odev delete WFNAME
+# example: odev delete nccl
 
 # get script location
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
