@@ -25,10 +25,10 @@ DELETE_NCCL_FLAGS_MANDATORY="name"
 # program
 PROGRAM_NCCL_DESCRIPTION="Programs your nccl project to a specified device"
 PROGRAM_NCCL_FLAGS=(
+  "devices,d,Comma-separated list of device indices,-,-"
   "name,n,Project name,-,-"
-  "device,d,Device index,-,-"
 )
-PROGRAM_NCCL_FLAGS_MANDATORY="name,device"
+PROGRAM_NCCL_FLAGS_MANDATORY="devices,name"
 
 # run
 RUN_NCCL_DESCRIPTION="Runs your nccl project"

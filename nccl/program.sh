@@ -75,6 +75,29 @@ name="${name// /_}"
 # check on flags
 # ...
 
+# check on devices
+if [[ ! "$devices" =~ ^[0-9]+(,\ ?[0-9]+)*$ ]]; then
+    echo "Invalid devices format: $devices"
+    exit 1
+fi
+
+# convert devices to an array
+devices_array=$(echo "$devices" | tr -d ' ')
+IFS=',' read -ra devices_array <<< "$devices_array"
+
+# remove duplicates
+mapfile -t devices_array < <(printf "%s\n" "${devices_array[@]}" | awk '!seen[$0]++')
+
+# nvidia-smi/CMDB validation
+for d in "${devices_array[@]}"; do
+    name_smi=$(nvidia-smi -i $d --query-gpu=name --format=csv,noheader)
+    name_cmdb=$($CMDB_PATH/cmdb_get.py --db $CMDB_PATH/$hostname.yml gpu $d name)
+    if [[ "$name_smi" != "$name_cmdb" ]]; then
+      echo "Invalid device index: $d"
+      exit 1
+    fi
+done
+
 # set command flags
 # ...
 
