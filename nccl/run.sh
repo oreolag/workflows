@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# example: odev new nccl
+# example: odev run nccl
 
 # get script location
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -21,7 +21,9 @@ italic=$(tput sitm 2>/dev/null || true)
 normal=$(tput sgr0)
 
 # constants
-# ...
+PROJECTS_PATH="$(eval echo "$("$ODEV_PATH/src/read_yml.py" --db "$ODEV_PATH/constants.yml" paths projects)")"
+WORKFLOWS_PATH="$ODEV_PATH/submodules/workflows"
+WORKFLOWS_USER_PATH="$(eval echo "$("$ODEV_PATH/src/read_yml.py" --db "$ODEV_PATH/constants.yml" paths workflows)")"
 
 # check on users
 # ...
@@ -31,7 +33,6 @@ normal=$(tput sgr0)
 
 # set KEY
 KEY="$(printf '%s_%s' "$COMMAND" "$SUBCOMMAND" | tr '[:lower:]' '[:upper:]')"
-#KEY="${COMMAND^^}"
 
 # get cmd_spec.sh path
 target="$(readlink -f "$ODEV_PATH/cmd/$COMMAND/$SUBCOMMAND.sh")"
@@ -51,6 +52,40 @@ print_both="0"
   "$print_range" "$print_default" "$print_both" \
   "${flags[@]}" -- "$@" && exit 0 || true
 
-echo "This is run nccl!"
+# parse flags
+parsed_flags="$("$ODEV_PATH/src/cmd_parse.sh" --params "${flags[@]}" -- "$@")" || exit 1
 
-# author: https://github.com/jmoya82
+# run interactive prompt
+parsed_flags="$("$ODEV_PATH/src/cmd_prompt.sh" --required "$mandatory_flags" --params "${flags[@]}" -- "$parsed_flags")" || exit 1
+
+# read flags
+if [[ -n "$parsed_flags" ]]; then
+  declare -A V
+  while IFS='=' read -r k v; do
+    V["$k"]="$v"
+  done <<< "$parsed_flags"
+fi
+
+# assign flags
+name=${V[name]}
+
+# replace spaces with "_"
+name="${name// /_}"
+
+# check on flags
+# ...
+
+# set command flags
+# ...
+
+# derived
+# ...
+
+# check if exists
+if [[ ! -d "$PROJECTS_PATH/$SUBCOMMAND/$name" ]]; then
+  echo "Project does not exist: $name"
+  exit 1
+fi
+
+# add your code here!
+echo "Hi from $COMMAND $SUBCOMMAND!"
