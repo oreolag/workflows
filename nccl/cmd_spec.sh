@@ -1,51 +1,44 @@
 #!/usr/bin/env bash
 
-# new
-NEW_NCCL_DESCRIPTION="Creates a NVIDIA Collective Communications Library (NCCL) project"
+# helpers
+lower() {
+  printf '%s' "${1,,}"
+}
+
+NEW_NCCL_DESCRIPTION="New description"
 NEW_NCCL_FLAGS=(
   "name,n,Project name,-,-"
   "push,p,Push to GitHub,0|1,1"
 )
 NEW_NCCL_FLAGS_MANDATORY="name,push"
 
-# build
-BUILD_NCCL_DESCRIPTION="Builds your nccl project"
+BUILD_NCCL_DESCRIPTION="Build description"
 BUILD_NCCL_FLAGS=(
   "name,n,Project name,-,-"
 )
 BUILD_NCCL_FLAGS_MANDATORY="name"
 
-# delete
-DELETE_NCCL_DESCRIPTION="Deletes a nccl project"
+DELETE_NCCL_DESCRIPTION="Deletes a $(lower NCCL) project"
 DELETE_NCCL_FLAGS=(
   "name,n,Project name,-,-"
 )
 DELETE_NCCL_FLAGS_MANDATORY="name"
 
-# program
-PROGRAM_NCCL_DESCRIPTION="Programs your nccl project to a specified device"
+PROGRAM_NCCL_DESCRIPTION="Program description"
 PROGRAM_NCCL_FLAGS=(
-  "devices,d,Comma-separated list of device indices,-,-"
   "name,n,Project name,-,-"
 )
-PROGRAM_NCCL_FLAGS_MANDATORY="devices,name"
+PROGRAM_NCCL_FLAGS_MANDATORY="name"
 
-# run
-RUN_NCCL_DESCRIPTION="Runs your nccl project"
+RUN_NCCL_DESCRIPTION="Run description"
 RUN_NCCL_FLAGS=(
   "name,n,Project name,-,-"
 )
 RUN_NCCL_FLAGS_MANDATORY="name"
 
-# validate
-VALIDATE_NCCL_DESCRIPTION="NVIDIA Collective Communications Library (NCCL) validation"
+VALIDATE_NCCL_DESCRIPTION="Validate description"
 VALIDATE_NCCL_FLAGS=(
-  "devices,d,Comma-separated list of device indices,-,-"
-  "nthreads,t,Threads per process,1-64,1"
-  "minbytes,b,Minimum message size,1B|4K|8M|1G,8M"
-  "maxbytes,e,Maximum message size,1B|4K|1G|16G,1G"
-  "iters,n,Timed iterations,1-1000,20"
-  "datatype,d,Specify which datatype to use,int8|half|bfloat16|float,float"
-  "stepfactor,f,Multiplication factor between sizes,2|4|8,2"
+  "flag1,a,Flag 1 description,1-8,1"
+  "flag2,b,Flag 2 description,8|16,8"
 )
-VALIDATE_NCCL_FLAGS_MANDATORY="devices,minbytes,maxbytes"
+VALIDATE_NCCL_FLAGS_MANDATORY="flag1,flag2"
