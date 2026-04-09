@@ -122,7 +122,7 @@ ngpus=${#devices_array[@]}
 flags="--ngpus $ngpus --nthreads $nthreads --minbytes $minbytes --maxbytes $maxbytes --iters $iters --datatype $datatype --stepfactor $stepfactor"
 
 # derived
-MPI_HOME="$(eval echo "$("$ODEV_PATH/src/read_yml.py" --db "$CMDB_PATH/vars.yml" mpi home)")"
+MPI_HOME="$(eval echo "$("$ODEV_PATH/src/read_yml.py" --db "$ODEV_PATH/constants.yml" mpi home)")"
 
 # steps
 # create folders
