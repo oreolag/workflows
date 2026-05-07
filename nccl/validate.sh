@@ -22,7 +22,7 @@ normal=$(tput sgr0)
 
 # constants
 CMDB_PATH="$(eval echo "$("$ODEV_PATH/src/read_yml.py" --db "$ODEV_PATH/vars.yml" paths cmdb)")"
-COLOR_OREOL=$($ODEV_PATH/src/color_get.sh $ODEV_PATH COLOR_OREOL)
+COLOR_OREOL=$($ODEV_PATH/src/constant_get.sh $ODEV_PATH COLOR_OREOL)
 LOCAL_TEST="1"
 PROJECTS_PATH="$(eval echo "$("$ODEV_PATH/src/read_yml.py" --db "$ODEV_PATH/vars.yml" paths projects)")"
 VALIDATION_PROJECT_PATH="$PROJECTS_PATH/$COMMAND.$SUBCOMMAND.$hostname"
